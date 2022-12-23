@@ -69,7 +69,7 @@ jobs:
 
   test-frontend:
     docker:
-      cimg/node:12.22.9
+    - image: cimg/node:12.22.9
     steps:
       - checkout
       - restore_cache:
@@ -83,7 +83,7 @@ jobs:
 
   test-backend:
     docker:
-      cimg/node:12.22.9
+    - image: cimg/node:12.22.9
     steps:
       - checkout
       - restore_cache:
