@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@4.29.149
+  slack: circleci/slack@4.29.1
 
 
 commands:
@@ -61,6 +61,7 @@ jobs:
           paths: [frontend/node_modules]
           key: frontend-deps
       - notify_on_failure
+      
   build-backend:
     docker:
       - image: cimg/node:12.22.9
