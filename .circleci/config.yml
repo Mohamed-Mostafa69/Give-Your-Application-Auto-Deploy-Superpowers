@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@4.9.3
+  slack: circleci/slack@4.29.149
 
 
 commands:
@@ -312,7 +312,7 @@ jobs:
             
   notify_on_success:
     docker:
-      - image: cimg/base:latest
+      - image: cimg/base:stable
     steps:
       - slack/notify:
         event: pass
