@@ -158,7 +158,7 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/base:sable
+      - image: cimg/base:stable
     steps:
       - checkout
       - run:
