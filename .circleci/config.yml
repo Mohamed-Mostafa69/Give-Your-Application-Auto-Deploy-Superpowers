@@ -60,14 +60,11 @@ commands:
             SUCCESS=$(curl --insecure  https://kvdb.io/${KVDB_BUCKET}/migration_<< parameters.Workflow_ID >>)
 
             # Logic for reverting the database state
-            if [ "$SUCCESS" != "NOT FOUND" ];
+            if (( $SUCCESS == 1 ));
             then
-              if (( $SUCCESS == 1 ));
-              then
-                cd ~/Give-Your-Application-Auto-Deploy-Superpowers/backend
-                npm install
-                npm run migrations:revert
-              fi
+              cd ~/Give-Your-Application-Auto-Deploy-Superpowers/backend
+              npm install
+              npm run migrations:revert
             fi
 
 jobs:
@@ -365,6 +362,7 @@ jobs:
       - destroy-environment
       - revert-migrations
 
+#whatev
 #  cloudfront-update:
 #    docker:
 #      # Docker image here that supports AWS CLI
