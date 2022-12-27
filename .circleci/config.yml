@@ -1,8 +1,6 @@
 version: 2.1
 
-
 commands:
-
   install-awscli:
     description: install AWS CLI v2
     steps:
@@ -12,7 +10,6 @@ commands:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
-
 
   install-ansible:
     description: install ansible v2
@@ -25,23 +22,30 @@ commands:
             sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible
 
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      Workflow_ID:
+      type: string
+      default: ${CIRCLE_WORKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            # Empty frontend bucket
+            aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
 
-#  destroy-environment:
-#    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-#    parameters:
-#      # Add parameter here   
-#    steps:
-#      - run:
-#          name: Destroy environments
-#          when: on_fail
-#          command: |
-#            # Your code here
-#            exit 1
-#
+            # Delete frontend stack
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
+
+            # Delete backend stack
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
+
 #  revert-migrations:
 #    description: Revert the last migration if successfully run in the current workflow.
 #    parameters:
-#      # Add parameter here     
+#      # Add parameter here
 #    steps:
 #      - run:
 #          name: Revert migrations
@@ -49,14 +53,14 @@ commands:
 #          command: |
 #            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
 #            SUCCESS = 1
-#            if(( $SUCCESS==1 )); 
+#            if(( $SUCCESS==1 ));
 #            then
 #            #  cd ~/project/backend
 #            #  npm install
 #            #  Add revert code here. You can find this in the Getting Started section.
 #              exit 1
 #            fi
-            
+
 jobs:
   build-frontend:
     docker:
@@ -85,18 +89,16 @@ jobs:
       - run:
           name: Back-end build
           command: |
-             cd backend
-             npm install
-             npm run build
+            cd backend
+            npm install
+            npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
 
-
-
   test-frontend:
     docker:
-    - image: cimg/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -104,13 +106,13 @@ jobs:
       - run:
           name: Front-end Unit Test
           command: |
-             cd frontend
-             npm install
-             npm test
+            cd frontend
+            npm install
+            npm test
 
   test-backend:
     docker:
-    - image: cimg/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -118,9 +120,9 @@ jobs:
       - run:
           name: Back-end Unit Test
           command: |
-             cd backend
-             npm install
-             npm test
+            cd backend
+            npm install
+            npm test
 
   scan-frontend:
     docker:
@@ -132,12 +134,11 @@ jobs:
       - run:
           name: Front-end Scan
           command: |
-             cd frontend
-             npm install
-             npm audit fix --force --audit-level=critical
-             npm audit fix --force --audit-level=critical
-             npm audit --audit-level=critical
-
+            cd frontend
+            npm install
+            npm audit fix --force --audit-level=critical
+            npm audit fix --force --audit-level=critical
+            npm audit --audit-level=critical
 
   scan-backend:
     docker:
@@ -149,12 +150,11 @@ jobs:
       - run:
           name: Back-end Scan
           command: |
-             cd backend
-             npm install
-             npm audit fix --force --audit-level=critical
-             npm audit fix --force --audit-level=critical
-             npm audit --audit-level=critical
-
+            cd backend
+            npm install
+            npm audit fix --force --audit-level=critical
+            npm audit fix --force --audit-level=critical
+            npm audit --audit-level=critical
 
   deploy-infrastructure:
     docker:
@@ -169,8 +169,8 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
-            
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+
       - run:
           name: Ensure front-end infrastructure exists
           command: |
@@ -178,8 +178,8 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
-            
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -194,26 +194,28 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure      
-#
-#  configure-infrastructure:
-#    docker:
-#      # Docker image here that supports Ansible
-#    steps:
-#      # Checkout code from git
-#      # Add ssh keys with fingerprint
-#      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # Your code here
-#            exit 1
-#      - run:
-#          name: Configure server
-#          command: |
-#            # Your code here
-#            exit 1
-#      # Here's where you will add some code to rollback on failure      
+
+      - destroy-environment
+
+  configure-infrastructure:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install-ansible
+      - add_ssh_keys:
+          fingerprints: ["46:bc:eb:ec:20:24:73:b8:31:3e:65:94:81:af:9f:25"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
+
+      - destroy-environment
+      # Here's where you will add some code to rollback on failure
 #
 #  run-migrations:
 #    docker:
@@ -230,7 +232,7 @@ jobs:
 #          command: |
 #            # Your code here
 #            exit 1
-#     # Here's where you will add some code to rollback on failure      
+#     # Here's where you will add some code to rollback on failure
 #
 #  deploy-frontend:
 #    docker:
@@ -251,8 +253,8 @@ jobs:
 #          name: Deploy frontend objects
 #          command: |
 #            # your code here
-#      # Here's where you will add some code to rollback on failure      
-#                    
+#      # Here's where you will add some code to rollback on failure
+#
 #  deploy-backend:
 #    docker:
 #      # Docker image here that supports Ansible
@@ -268,11 +270,11 @@ jobs:
 #          name: Deploy backend
 #          command: |
 #            # your code here
-#      # Here's where you will add some code to rollback on failure  
+#      # Here's where you will add some code to rollback on failure
 #
 #  smoke-test:
 #    docker:
-#      # Lightweight Docker image 
+#      # Lightweight Docker image
 #    steps:
 #      # Checkout code from git
 #      - run:
@@ -291,7 +293,7 @@ jobs:
 #          name: Frontend smoke test.
 #          command: |
 #            # your code here
-#      # Here's where you will add some code to rollback on failure  
+#      # Here's where you will add some code to rollback on failure
 #
 #  cloudfront-update:
 #    docker:
@@ -306,7 +308,7 @@ jobs:
 #          name: Update cloudfront distribution
 #          command: |
 #            # your code here
-#      # Here's where you will add some code to rollback on failure  
+#      # Here's where you will add some code to rollback on failure
 #
 #cleanup:
 #    docker:
@@ -326,7 +328,6 @@ jobs:
 #            then
 #              # your code here
 #            fi
-            
 
 workflows:
   default:
@@ -347,8 +348,8 @@ workflows:
           filters:
             branches:
               only: [main]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
 #      - run-migrations:
 #          requires: [configure-infrastructure]
 #      - deploy-frontend:
