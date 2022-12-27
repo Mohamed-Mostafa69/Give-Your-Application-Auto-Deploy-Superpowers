@@ -236,6 +236,8 @@ jobs:
 
       - destroy-environment
       - revert-migrations
+
+      #nothing
       # Here's where you will add some code to rollback on failure
 #
 #  deploy-frontend:
