@@ -315,8 +315,8 @@ jobs:
           name: Deploy backend
           command: |
             export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity.js
-            export TYPEORM_MIGRATIONS=./migrations/*.js
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
 
             cd .circleci/ansible
             cat inventory.txt
@@ -359,10 +359,9 @@ jobs:
               exit 1
             fi
 
-#      - destroy-environment
-#      - revert-migrations
+      - destroy-environment
+      - revert-migrations
 
-#whatev
 #  cloudfront-update:
 #    docker:
 #      # Docker image here that supports AWS CLI
