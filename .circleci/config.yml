@@ -10,7 +10,7 @@ commands:
             sudo apt-get update && sudo apt-get install -yy less
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            sudo ./aws/instal
+            sudo ./aws/install
 
   install_ansible: #we will install ansible
     description: Install Ansible
@@ -171,7 +171,7 @@ jobs:
             # npm install oauth-sign@^0.9.0
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
-            # npm audit --audit-level=critical
+            npm audit --audit-level=critical
 
   deploy-infrastructure:
     docker:
@@ -287,10 +287,10 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm install
             npm run build
-            tar -czvf artifact-"17b5".tar.gz dist
-            aws s3 cp dist s3://udapeople-17b5 --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+
+      - revert-migrations
 
       - destroy-environment
 
