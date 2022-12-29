@@ -1,0 +1,2 @@
+Github: https://github.com/Mohamed-Mostafa69/Give-Your-Application-Auto-Deploy-Superpowers
+S3 Bouket: https://udapeople-0c26d3d.s3.amazonaws.com/index.html
