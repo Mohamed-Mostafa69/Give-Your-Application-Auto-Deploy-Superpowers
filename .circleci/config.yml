@@ -73,7 +73,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:14.17.0
     steps:
       - checkout
       - restore_cache:
@@ -90,7 +90,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:14.17.0
     steps:
       - checkout
       - restore_cache:
@@ -107,7 +107,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:14.17.0
     steps:
       - checkout
       - restore_cache:
@@ -121,7 +121,7 @@ jobs:
 
   test-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:14.17.0
     steps:
       - checkout
       - restore_cache:
@@ -135,7 +135,7 @@ jobs:
 
   scan-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:14.17.0
     steps:
       - checkout
       - restore_cache:
@@ -148,14 +148,10 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-            npm install --save-dev file-loader@6.2.0
-            npm update minimist --depth 4
-            npm update js-yaml --depth 4
-            npm update loader-utils --depth 2
 
   scan-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:14.17.0
     steps:
       - checkout
       - restore_cache:
@@ -232,7 +228,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:14.17.0
     steps:
       - checkout
       - install-awscli
