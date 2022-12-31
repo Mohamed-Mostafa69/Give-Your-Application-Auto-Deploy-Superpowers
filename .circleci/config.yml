@@ -108,7 +108,6 @@ jobs:
             cd backend 
             npm install 
             npm run build
-            npm i typescript@2.8.1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
