@@ -1,0 +1,5 @@
+Github: https://github.com/Mohamed-Mostafa69/Give-Your-Application-Auto-Deploy-Superpowers
+S3 Bouket: http://udapeople-056c035.s3-website-us-east-1.amazonaws.com
+Cloudfront: http://d2yxfapbtqym8b.cloudfront.net		
+backend: http://ec2-52-5-248-149.compute-1.amazonaws.com:3030/api/status
+Prometheus: http://ec2-52-91-18-81.compute-1.amazonaws.com:9090
